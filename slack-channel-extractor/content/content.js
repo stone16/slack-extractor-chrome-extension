@@ -1309,12 +1309,11 @@ class SlackExtractor {
 
       // Track threads that have replies - extract immediately while in DOM
       if (this.settings.includeThreads && msgData.reply_count > 0) {
-        if (!this.pendingThreads.has(msgData.ts) && !this.extractedThreads?.has(msgData.ts)) {
+        if (!this.pendingThreads.has(msgData.ts) && !this.extractedThreads.has(msgData.ts)) {
           this.log(`Found thread with ${msgData.reply_count} replies: ${msgData.ts}`, 'info');
           this.pendingThreads.add(msgData.ts);
 
           // Queue this thread for immediate extraction while it's still in DOM
-          this.threadQueue = this.threadQueue || [];
           this.threadQueue.push({ ts: msgData.ts, el: el });
         }
       }

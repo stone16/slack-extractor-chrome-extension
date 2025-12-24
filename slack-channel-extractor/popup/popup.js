@@ -557,11 +557,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       updateUI('running', 'jumping');
       addLog(`Quick jumping ${message.direction} to reach target date...`, 'info');
       break;
-    case 'JUMP_PROGRESS':
+    case 'JUMP_PROGRESS': {
       const targetDate = new Date(message.targetDate).toLocaleDateString();
       const visibleDate = new Date(message.visibleNewest).toLocaleDateString();
       statusText.textContent = `Jumping... (at ${visibleDate}, target: ${targetDate})`;
       break;
+    }
     case 'COMPLETED':
       updateUI('completed');
       addLog('Extraction completed!', 'success');

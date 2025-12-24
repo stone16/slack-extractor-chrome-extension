@@ -155,12 +155,6 @@ async function exportData(format) {
 function organizeByThreads(messages) {
   const threads = {};
   const standalone = [];
-  const messageMap = new Map();
-
-  // Build message lookup map
-  messages.forEach(msg => {
-    messageMap.set(msg.ts, msg);
-  });
 
   // First pass: identify thread parents (messages with replies or explicit thread_ts = ts)
   messages.forEach(msg => {
@@ -298,8 +292,8 @@ async function getStats() {
 
     // Calculate date range
     const timestamps = messages.map(m => parseFloat(m.ts)).filter(t => !isNaN(t));
-    const minTs = Math.min(...timestamps);
-    const maxTs = Math.max(...timestamps);
+    const minTs = timestamps.length > 0 ? Math.min(...timestamps) : null;
+    const maxTs = timestamps.length > 0 ? Math.max(...timestamps) : null;
 
     return {
       success: true,
@@ -307,7 +301,7 @@ async function getStats() {
         messageCount: messages.length,
         userCount: users.size,
         threadCount: threads.size,
-        dateRange: timestamps.length > 0 ? {
+        dateRange: minTs !== null ? {
           from: new Date(minTs * 1000).toISOString(),
           to: new Date(maxTs * 1000).toISOString()
         } : null,
@@ -324,7 +318,7 @@ async function getStats() {
 function escapeCSV(field) {
   if (field === null || field === undefined) return '';
   const str = String(field);
-  if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+  if (str.includes(',') || str.includes('"') || str.includes('\n') || str.includes('\r')) {
     return `"${str.replace(/"/g, '""')}"`;
   }
   return str;
