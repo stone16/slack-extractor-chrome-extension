@@ -709,9 +709,39 @@ class SlackExtractor {
 
     // Last resort: try 't' keyboard shortcut
     document.dispatchEvent(new KeyboardEvent('keydown', { key: 't', bubbles: true }));
-    await this.sleep(500);
+
+    const opened = await this.waitForThreadPanelOpen(1500);
+    if (!opened) {
+      this.log('Attempted keyboard shortcut but thread panel not detected', 'warning');
+      return false;
+    }
 
     return true;
+  }
+
+  async waitForThreadPanelOpen(timeoutMs) {
+    const threadPanelSelectors = [
+      '[data-qa="threads_view"]',
+      '[data-qa="threads_flexpane"]',
+      '[data-qa="message_pane_thread"]',
+      '.p-threads_flexpane',
+      '.p-flexpane__inside_body',
+      '[aria-label*="thread" i]',
+      '[aria-label*="Thread" i]',
+      'section[class*="Thread"]',
+      'div[class*="ThreadPanel"]',
+      '.p-workspace__secondary_view',
+      '.p-flexpane'
+    ];
+
+    const startTime = Date.now();
+    while (Date.now() - startTime < timeoutMs) {
+      const found = threadPanelSelectors.some(selector => document.querySelector(selector));
+      if (found) return true;
+      await this.sleep(150);
+    }
+
+    return false;
   }
 
   // Extract messages from the thread panel
@@ -898,10 +928,10 @@ class SlackExtractor {
   }
 
   // Stop extraction
-  stop() {
+  async stop() {
     this.isRunning = false;
     this.isPaused = false;
-    this.saveState();
+    await this.saveState();
     this.log('Extraction stopped', 'warning');
   }
 
@@ -1593,9 +1623,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       sendResponse({ success: true });
       break;
     case 'STOP_EXTRACTION':
-      extractor.stop();
-      sendResponse({ success: true });
-      break;
+      extractor.stop()
+        .then(() => sendResponse({ success: true }))
+        .catch(error => sendResponse({ error: error.message }));
+      return true;
     case 'GET_STATE':
       sendResponse(extractor.getState());
       break;

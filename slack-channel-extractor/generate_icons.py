@@ -4,6 +4,8 @@ Generate PNG icons for the Chrome extension.
 Requires Pillow: pip install Pillow
 """
 
+import os
+
 try:
     from PIL import Image, ImageDraw, ImageFont
 except ImportError:
@@ -68,6 +70,7 @@ def create_icon(size):
     return img
 
 def main():
+    os.makedirs("icons", exist_ok=True)
     sizes = [16, 48, 128]
 
     for size in sizes:

@@ -301,6 +301,15 @@ function filterMessagesByTimeRange(messages) {
   });
 }
 
+function escapeCSV(field) {
+  if (field === null || field === undefined) return '';
+  const str = String(field);
+  if (str.includes(',') || str.includes('"') || str.includes('\n') || str.includes('\r')) {
+    return `"${str.replace(/"/g, '""')}"`;
+  }
+  return str;
+}
+
 // Export data
 async function exportData(format) {
   const data = await chrome.storage.local.get(['extractedMessages']);
@@ -349,15 +358,15 @@ async function exportData(format) {
     const rows = messages.map(msg => {
       const dateParts = getMessageDateParts(msg);
       return [
-        msg.ts,
-        msg.message_date || dateParts.date,
-        msg.message_time || dateParts.time,
-        msg.user_id || '',
-        msg.user_name || '',
-        `"${(msg.text || '').replace(/"/g, '""')}"`,
-        msg.thread_ts || '',
-        msg.reply_count || 0,
-        msg.reactions ? JSON.stringify(msg.reactions) : ''
+        escapeCSV(msg.ts),
+        escapeCSV(msg.message_date || dateParts.date),
+        escapeCSV(msg.message_time || dateParts.time),
+        escapeCSV(msg.user_id || ''),
+        escapeCSV(msg.user_name || ''),
+        escapeCSV(msg.text || ''),
+        escapeCSV(msg.thread_ts || ''),
+        escapeCSV(msg.reply_count || 0),
+        escapeCSV(msg.reactions ? JSON.stringify(msg.reactions) : '')
       ];
     });
     content = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
@@ -369,11 +378,15 @@ async function exportData(format) {
   const blob = new Blob([content], { type });
   const url = URL.createObjectURL(blob);
 
-  await chrome.downloads.download({
-    url,
-    filename,
-    saveAs: true
-  });
+  try {
+    await chrome.downloads.download({
+      url,
+      filename,
+      saveAs: true
+    });
+  } finally {
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
 
   addLog(`Exported ${messages.length} messages as ${format.toUpperCase()}`, 'success');
 }

@@ -133,22 +133,60 @@ async function exportData(format) {
       content = JSON.stringify(exportData, null, 2);
       filename = `slack_analysis_${timestamp}.json`;
       mimeType = 'application/json';
+    } else {
+      return { success: false, error: `Unknown export format: ${format}` };
     }
 
     // Create download
     const blob = new Blob([content], { type: mimeType });
     const url = URL.createObjectURL(blob);
 
-    await chrome.downloads.download({
-      url,
-      filename,
-      saveAs: true
-    });
+    let downloadId;
+    try {
+      downloadId = await chrome.downloads.download({
+        url,
+        filename,
+        saveAs: true
+      });
+    } catch (error) {
+      URL.revokeObjectURL(url);
+      throw error;
+    }
+
+    await waitForDownloadCompletion(downloadId, url);
 
     return { success: true, count: messages.length };
   } catch (error) {
     return { success: false, error: error.message };
   }
+}
+
+async function waitForDownloadCompletion(downloadId, url) {
+  return new Promise(resolve => {
+    if (!downloadId) {
+      URL.revokeObjectURL(url);
+      resolve();
+      return;
+    }
+
+    const onChanged = (delta) => {
+      if (delta.id !== downloadId || !delta.state) return;
+      if (delta.state.current === 'complete' || delta.state.current === 'interrupted') {
+        clearTimeout(timeoutId);
+        chrome.downloads.onChanged.removeListener(onChanged);
+        URL.revokeObjectURL(url);
+        resolve();
+      }
+    };
+
+    const timeoutId = setTimeout(() => {
+      chrome.downloads.onChanged.removeListener(onChanged);
+      URL.revokeObjectURL(url);
+      resolve();
+    }, 15000);
+
+    chrome.downloads.onChanged.addListener(onChanged);
+  });
 }
 
 // Organize messages by threads for analysis
