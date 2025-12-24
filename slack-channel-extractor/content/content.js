@@ -1643,6 +1643,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 // Handle page unload
 window.addEventListener('beforeunload', () => {
   if (extractor.isRunning) {
+    // saveState() is async but cannot be awaited reliably during beforeunload.
     extractor.saveState();
   }
 });
