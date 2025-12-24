@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Slack Channel Extractor</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Slack Channel Extractor</h1>
+    </header>
+
+    <section class="status-section">
+      <div class="status-indicator">
+        <span class="status-dot" id="statusDot"></span>
+        <span class="status-text" id="statusText">Ready</span>
+      </div>
+      <div class="channel-info" id="channelInfo">
+        <span class="channel-name" id="channelName">--</span>
+      </div>
+    </section>
+
+    <section class="controls-section">
+      <button id="startBtn" class="btn btn-primary">
+        <span class="btn-icon">🚀</span> Start Extraction
+      </button>
+      <div class="secondary-controls" id="secondaryControls" style="display: none;">
+        <button id="pauseBtn" class="btn btn-secondary">
+          <span class="btn-icon">⏸️</span> Pause
+        </button>
+        <button id="stopBtn" class="btn btn-danger">
+          <span class="btn-icon">⏹️</span> Stop
+        </button>
+      </div>
+    </section>
+
+    <section class="settings-section">
+      <h3>Settings</h3>
+      <div class="setting-item">
+        <label for="scrollDelay">Scroll Delay (seconds) - Lower = Faster</label>
+        <div class="range-container">
+          <input type="range" id="scrollDelay" min="1" max="8" value="2" step="0.5">
+          <span id="scrollDelayValue">2s</span>
+        </div>
+        <div class="setting-hint">For large channels (1000+ messages), use 1-2s</div>
+      </div>
+      <div class="setting-item">
+        <label>
+          <input type="checkbox" id="includeThreads" checked>
+          Include Thread Replies
+        </label>
+      </div>
+      <div class="setting-item">
+        <label for="autoSaveInterval">Auto-save Interval</label>
+        <select id="autoSaveInterval">
+          <option value="50">Every 50 messages</option>
+          <option value="100" selected>Every 100 messages</option>
+          <option value="200">Every 200 messages</option>
+        </select>
+      </div>
+      <div class="setting-item">
+        <label>Time Range (optional)</label>
+        <div class="time-range">
+          <div class="time-range-row">
+            <span class="time-range-label">From:</span>
+            <input type="datetime-local" id="timeRangeFrom">
+          </div>
+          <div class="time-range-row">
+            <span class="time-range-label">To:</span>
+            <input type="datetime-local" id="timeRangeTo">
+          </div>
+        </div>
+        <div class="setting-hint">Leave blank to extract all messages</div>
+      </div>
+    </section>
+
+    <section class="progress-section" id="progressSection">
+      <h3>Progress</h3>
+      <div class="progress-bar-container">
+        <div class="progress-bar" id="progressBar"></div>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-item">
+          <span class="stat-label">Messages</span>
+          <span class="stat-value" id="messageCount">0</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Threads</span>
+          <span class="stat-value" id="threadCount">0</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Threads Done</span>
+          <span class="stat-value" id="extractedThreadCount">0</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Users</span>
+          <span class="stat-value" id="userCount">0</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Speed</span>
+          <span class="stat-value" id="extractionSpeed">--</span>
+        </div>
+      </div>
+      <div class="last-save" id="lastSave">
+        <span class="save-icon">💾</span>
+        <span id="lastSaveTime">Not saved yet</span>
+      </div>
+    </section>
+
+    <section class="export-section">
+      <h3>Export Data</h3>
+      <div class="export-buttons">
+        <button id="exportJsonBtn" class="btn btn-export">
+          <span class="btn-icon">📥</span> Export JSON
+        </button>
+        <button id="exportCsvBtn" class="btn btn-export">
+          <span class="btn-icon">📊</span> Export CSV
+        </button>
+      </div>
+      <div class="export-info" id="exportInfo">
+        <span id="dataSize">No data</span>
+      </div>
+      <button id="clearDataBtn" class="btn btn-clear">
+        <span class="btn-icon">🗑️</span> Clear Cached Data
+      </button>
+    </section>
+
+    <section class="log-section">
+      <h3>Activity Log</h3>
+      <div class="log-container" id="logContainer">
+        <div class="log-entry info">Extension loaded. Navigate to a Slack channel to begin.</div>
+      </div>
+    </section>
+
+    <footer>
+      <span class="version">v1.0.0</span>
+      <span class="help-link" id="helpLink">Need help?</span>
+    </footer>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
