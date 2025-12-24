@@ -1,0 +1,93 @@
+# Slack Channel Extractor - Git Ignore File
+# This file tells Git which files should NOT be uploaded to GitHub
+
+# ============================================
+# User-generated data exports (IMPORTANT!)
+# ============================================
+# Exported message files may contain sensitive data
+*.json
+*.csv
+# But we need to keep the manifest.json file
+!slack-channel-extractor/manifest.json
+
+# ============================================
+# Chrome Extension packaging files
+# ============================================
+*.crx
+*.pem
+*.zip
+
+# ============================================
+# Operating System files
+# ============================================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+Desktop.ini
+
+# Linux
+*~
+
+# ============================================
+# IDE and Editor files
+# ============================================
+# Visual Studio Code
+.vscode/
+*.code-workspace
+
+# JetBrains IDEs (WebStorm, IntelliJ, etc.)
+.idea/
+*.iml
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+*.swp
+*.swo
+*.swn
+*~
+
+# ============================================
+# Logs and temporary files
+# ============================================
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Temporary folders
+tmp/
+temp/
+cache/
+
+# ============================================
+# Node modules (if you add npm later)
+# ============================================
+node_modules/
+package-lock.json
+yarn.lock
+
+# ============================================
+# Environment and secrets
+# ============================================
+.env
+.env.local
+.env.*.local
+secrets.txt
+config.local.js
+
+# ============================================
+# Build outputs
+# ============================================
+dist/
+build/
+*.min.js
+*.min.css
